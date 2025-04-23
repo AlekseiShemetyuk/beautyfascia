@@ -27,7 +27,7 @@
          </div>
 
             <div class="form-row">
-                <button class="button-87" role="button"  @click="handleSubmit">Submit</button>
+                <button class="button-87"  @click="handleSubmit">Submit</button>
             </div> 
       </form>
       </div>
@@ -61,7 +61,10 @@ onMounted(() => {
 
 })
 
-async function handleSubmit() {
+async function handleSubmit(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
     let isFormValid = [firstNameRef, lastNameRef, emailRef].reduce((result, component) => {
         return (component && component.value) ? result && component.value : result;
     }, true) 
