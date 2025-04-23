@@ -85,7 +85,7 @@ async function handleSubmit(event) {
         react.isLoading = true;
         console.log(isFormValid);
 
-        await createLead(dataForm.value);
+        await createLead(dataForm);
         emit('submited', true);
     }
 }
