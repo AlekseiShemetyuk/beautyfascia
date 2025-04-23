@@ -80,8 +80,10 @@ async function handleSubmit(event) {
 }
 async function createLead(data) {
     try {
-        const URL = 'https://stonehenge.my.site.com/services/apexrest'
-        let response = await fetch(`${URL}/lead/`, {
+        // const URL = 'https://stonehenge.my.site.com/services/apexrest';
+        const URL = 'https://beautyfascia-dev-ed.develop.my.site.com/services/apexrest/lead/';
+
+        let response = await fetch(URL, {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json;charset=utf-8',
