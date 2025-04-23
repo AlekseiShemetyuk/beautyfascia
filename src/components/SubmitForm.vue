@@ -6,43 +6,55 @@
       <form action="#">
          <div class="form-row">
             <div class="input-data">
-               <input ref="firstNameRef" type="text" required>
+               <input ref="firstNameRef" type="text" v-model="dataForm.firstName" required>
                <div class="underline"></div>
                <label for="">First Name</label>
             </div>
          </div>
          <div class="form-row">
             <div class="input-data">
-               <input ref="lastNameRef" type="text" required>
+               <input ref="lastNameRef" type="text" v-model="dataForm.lastName" required>
                <div class="underline"></div>
                <label for="">Last Name</label>
             </div>
          </div>
          <div class="form-row">
             <div class="input-data">
-               <input ref="emailRef" type="text" required>
+               <input ref="emailRef" type="text" v-model="dataForm.email" required>
                <div class="underline"></div>
                <label for="">Email Address</label>
             </div>
          </div>
 
             <div class="form-row">
-                <button class="button-87"  @click="handleSubmit">Submit</button>
+
+                <button class="button-87" v-if="!react.isLoading"  @click="handleSubmit">Submit</button>
+                <div v-else class="button-loaded">
+                    <div class="loader">
+                      
+                    </div>
+                    <div class="loader-text">
+                      Loading...
+                    </div>
+                  </div>
             </div> 
       </form>
       </div>
 </template>
 
 <script setup>
-import { ref, useTemplateRef, defineEmits, onMounted } from 'vue'
+import { useTemplateRef, defineEmits, onMounted, reactive } from 'vue'
 
-const emit = defineEmits(['change'])
+const emit = defineEmits(['change']);
+
+const react = reactive({ isLoading: false  })
+
 
 const firstNameRef = useTemplateRef('firstNameRef');
 const lastNameRef = useTemplateRef('lastNameRef')
 const emailRef = useTemplateRef('emailRef')
 
-const dataForm = ref({
+const dataForm = reactive({
     firstName: "",
     lastName: "",
     email: "",
@@ -52,11 +64,10 @@ const dataForm = ref({
 
 onMounted(() => {
     fetch('https://api.country.is/')
-    .then((res) => (res.text()))
+    .then((res) => (res.json()))
     .then((data) => {
-        console.log(data);
-        dataForm.value.ip = data.ip;
-        dataForm.value.country = data.country;
+        dataForm.ip = data.ip;
+        dataForm.country = data.country;
     })
 
 })
@@ -66,12 +77,12 @@ async function handleSubmit(event) {
     event.stopPropagation();
 
     let isFormValid = [firstNameRef, lastNameRef, emailRef].reduce((result, component) => {
-        return (component && component.value) ? result && component.value : result;
+            component.value.reportValidity();
+        return result && component.value.value;
     }, true) 
  
     if (isFormValid) {
-        // react.isSubmited = true;
-        console.log(dataForm.value);
+        react.isLoading = true;
         console.log(isFormValid);
 
         await createLead(dataForm.value);
@@ -249,7 +260,7 @@ form .form-row .textarea{
 
 
 
-.button-87 {
+.button-87,.button-loaded {
   margin: auto;
   padding: 12px 50px;
   font-size: 20px;
@@ -278,4 +289,54 @@ form .form-row .textarea{
 .button-87:active {
   transform: scale(0.95);
 }
+
+.button-loaded {
+    padding: 5px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+.loader {
+    border: 1px solid white;
+    border-radius: 50%;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    width: 35px;
+    height: 35px;
+    animation-name: loading;
+    animation-duration: 700ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+  
+  .loader-text {
+    color: lightgrey;
+    font-family: 'Lato', sans-serif;
+    font-size: 18px;
+    animation-name: fading;
+    animation-duration: 1500ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+  
+  
+  @keyframes loading{
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes fading {
+    0%, 100% {
+      opacity: 0.05;
+    }
+    50% {
+      opacity: 0.95;
+    }
+  }
 </style>
